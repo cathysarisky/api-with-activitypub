@@ -8,7 +8,7 @@
     --warning-color: #F39C12;
     --error-color: #E25440;
     --background-color: #FFFFFF;
-    --card-background: #F8F9FA;
+    --card-background: #FCFCFC;
     --border-color: #E1E8ED;
     --border-radius: 8px;
     --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -38,7 +38,7 @@ body {
 .loading, .error, .no-data {
     text-align: center;
     padding: 40px 20px;
-    font-size: 1.2rem;
+    font-size: 18px;
     border-radius: var(--border-radius);
     margin: 20px 0;
 }
@@ -75,7 +75,7 @@ body {
 
 /* Individual Note */
 .note {
-    background: var(--card-background);
+    background: white;
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
     margin-bottom: 20px;
@@ -96,8 +96,8 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
-    font-size: 0.9rem;
+    margin-bottom: 0.9rem;
+    font-size:15px;
     color: var(--secondary-color);
 }
 
@@ -138,7 +138,7 @@ body {
     padding: 8px 16px;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 0.9rem;
+    font-size: 15px;
     margin-top: 10px;
     transition: background-color 0.2s ease;
 }
@@ -162,7 +162,7 @@ body {
 }
 
 .engagement-item {
-    font-size: 0.9rem;
+    font-size: 15px;
     color: var(--secondary-color);
     font-weight: 500;
 }
@@ -200,7 +200,7 @@ body {
 .note-link {
     color: var(--accent-color);
     text-decoration: none;
-    font-size: 0.9rem;
+    font-size: 15px;
     padding: 8px 16px;
     border: 1px solid var(--border-color);
     border-radius: 4px;
@@ -218,7 +218,7 @@ body {
     text-align: center;
     padding: 20px;
     color: var(--secondary-color);
-    font-size: 0.9rem;
+    font-size: 15px;
     border-top: 1px solid var(--border-color);
     margin-top: 30px;
 }
