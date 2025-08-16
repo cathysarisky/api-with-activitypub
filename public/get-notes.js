@@ -120,7 +120,7 @@ class GhostNotesClient {
                             <span class="engagement-item">💭 ${note.replyCount}</span>
                         </div>
                         <div class="note-footer">
-                            <a href="${note.url}" target="_blank" class="note-link">🔗 View Original</a>
+                            <a href="${note.url}" target="_blank" class="note-link">🔗</a>
                         </div>
                     </div>
                 </article>
