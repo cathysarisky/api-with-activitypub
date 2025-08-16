@@ -129,9 +129,7 @@ class GhostNotesClient {
 
         html += `
                 </div>
-                <div class="footer">
-                    <p>Last updated: ${new Date(this.data.timestamp).toLocaleString()}</p>
-                </div>
+
             </div>
         `;
 
