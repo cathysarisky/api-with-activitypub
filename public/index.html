@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ghost ActivityPub Notes Dashboard</title>
+    <meta name="description" content="View your Ghost ActivityPub notes with engagement metrics">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>👻 Ghost ActivityPub Notes Dashboard</h1>
+            <p>Your notes from Ghost ActivityPub with engagement metrics</p>
+        </header>
+
+
+
+        <div id="notesContainer">
+            <div class="loading">🔄 Loading your notes...</div>
+        </div>
+    </div>
+
+    <script src="get-notes.js"></script>
+    <script>
+        // DOM elements
+        const notesContainer = document.getElementById('notesContainer');
+
+        // Load notes function
+        async function loadNotes() {
+            try {
+                // Render loading state
+                ghostNotesClient.loading = true;
+                ghostNotesClient.renderNotes(notesContainer);
+                
+                // Fetch notes
+                await ghostNotesClient.fetchNotes();
+                
+                // Render the notes
+                ghostNotesClient.renderNotes(notesContainer);
+                
+            } catch (error) {
+                console.error('Failed to load notes:', error);
+                
+                // Render error state
+                ghostNotesClient.error = error.message;
+                ghostNotesClient.renderNotes(notesContainer);
+            }
+        }
+
+        // Auto-load on page load
+        window.addEventListener('load', () => {
+            loadNotes();
+        });
+
+
+
+
+    </script>
+</body>
+</html>
