@@ -1,58 +1,47 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ghost ActivityPub Notes Dashboard</title>
-    <meta name="description" content="View your Ghost ActivityPub notes with engagement metrics">
-</head>
-<body>
-    <link rel="stylesheet" href="https://sws-api-for-activitypub.netlify.app/styles.css">
+<link rel="stylesheet" href="https://sws-api-for-activitypub.netlify.app/styles.css">
 
-    <div class="container">
-        <div id="notesContainer">
-            <div class="loading">🔄 Loading your notes...</div>
-        </div>
+<div class="container kg-width-full">
+    <div id="notesContainer">
+        <div class="loading">🔄 Loading your notes... (or only pretending to, if you're in an email or Ghost Reader client)</div>
     </div>
+</div>
 
-    <script src="https://sws-api-for-activitypub.netlify.app/get-notes.js"></script>
-    <script>
-        // DOM elements
-        const notesContainer = document.getElementById('notesContainer');
-        
-        // Initialize the client
-        const client = new GhostNotesClient();
+<script src="https://sws-api-for-activitypub.netlify.app/get-notes.js"></script>
+<script>
+    // DOM elements
+    const notesContainer = document.getElementById('notesContainer');
+    
+    // Initialize the client
+    const client = new GhostNotesClient();
 
-        // Load notes function
-        async function loadNotes() {
-            try {
-                // Render loading state
-                client.loading = true;
-                client.renderNotes(notesContainer);
-                
-                // Fetch notes
-                await client.fetchNotes();
-                
-                // Render the notes
-                client.renderNotes(notesContainer);
-                
-            } catch (error) {
-                console.error('Failed to load notes:', error);
-                
-                // Render error state
-                client.error = error.message;
-                client.renderNotes(notesContainer);
-            }
+    // Load notes function
+    async function loadNotes() {
+        try {
+            // Render loading state
+            client.loading = true;
+            client.renderNotes(notesContainer);
+            
+            // Fetch notes
+            await client.fetchNotes();
+            
+            // Render the notes
+            client.renderNotes(notesContainer);
+            
+        } catch (error) {
+            console.error('Failed to load notes:', error);
+            
+            // Render error state
+            client.error = error.message;
+            client.renderNotes(notesContainer);
         }
+    }
 
-        // Auto-load on page load
-        window.addEventListener('load', () => {
-            loadNotes();
-        });
+    // Auto-load on page load
+    window.addEventListener('load', () => {
+        loadNotes();
+    });
 
 
 
 
-    </script>
-</body>
-</html>
+</script>

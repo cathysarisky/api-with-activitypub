@@ -2,50 +2,33 @@
 
 A Netlify function that integrates with Ghost Admin API and ActivityPub to retrieve user notes with engagement data.
 
+Cathy Sarisky / https://www.spectralwebservices.com
+
+## WIP
+- Some hard-coded values are present in get-my-notes.js - plan to update before deploying :)
+- Although it looks like replies are available, I haven't yet attempted to allow browsing them.
+- Displayed likes/reposts/etc are non-interactive.  Because of the delocalized nature of the fediverse,
+it's not obvious what we should do when a user clicks to like a note, since that action needs to go to their home server, not our activitypub instance.  An approach like tootpick might be worth considering here.
+
+## Security note:
+- get-my-notes needs to be deployed to a server you control.  It /cannot/ run on the browser,
+because it requires access to your site's admin API key.  
+
 ## Features
 
 - 🔐 Ghost Admin API authentication using JWT
 - 📡 ActivityPub integration with Bearer token
-- 📝 Filter for user's own notes (type: 0)
 - 📊 Engagement metrics (likes, reposts, replies)
 - 🖼️ Image attachment extraction
 - 🌐 JSON API response
 - ⚡ Serverless deployment on Netlify
 
-## Setup
+## Setup on Netlify
 
-### 1. Environment Variables
-
-Create a `.env` file with your Ghost Admin API credentials:
-
-```env
-GHOST_ADMIN_API_URL=https://admindash.spectralwebservices.com/ghost/api/admin/
-GHOST_ADMIN_API_KEY=your_ghost_api_key_id:your_ghost_api_key_secret
-```
-
-### 2. Install Dependencies
-
-```bash
-npm install
-```
-
-### 3. Local Development
-
-```bash
-# Run the original Node.js version
-npm start
-
-# Or run with Netlify Dev for function testing
-npm run netlify-dev
-```
-
-### 4. Deploy to Netlify
-
-1. Connect your repository to Netlify
-2. Set environment variables in Netlify dashboard:
+Set environment variables in Netlify dashboard:
    - `GHOST_ADMIN_API_URL`
    - `GHOST_ADMIN_API_KEY`
-3. Deploy!
+Be sure to redeploy after changing these values
 
 ## API Endpoints
 
@@ -100,10 +83,13 @@ Returns your Ghost ActivityPub notes with engagement data.
 │       └── get-my-notes.js     # Main Netlify function
 ├── ghostApi.js                 # Ghost API client class
 ├── utils.js                    # JWT token generation utilities
-├── index.js                    # Original Node.js demo
-├── package.json
-├── netlify.toml               # Netlify configuration
-└── README.md
+├── index.js                    # Original Node.js demo - not needed for production
+├── netlify.toml                # Netlify configuration
+├── public
+    └── get-notes.js            # Client-side javascript to get and render notes (update for your site)
+    └── styles.css              # Optional styles for the notes
+    └── index.html              # Standalone page of notes, alternative to integrating with your Ghost site.
+
 ```
 
 ## Usage Examples
@@ -130,20 +116,8 @@ fetch('https://your-site.netlify.app/.netlify/functions/get-my-notes')
 curl https://your-site.netlify.app/.netlify/functions/get-my-notes
 ```
 
-## Development
+## Development & Demos
 
-The project includes both the original Node.js script (`index.js`) for testing and the Netlify function for production deployment.
+- Node.js script (`index.js`) for testing/local demonstration of the activitypub endpoints. 
+- public/index.html is a standalone page (requiring a netlify deployment or local `netlify dev`) front-end demo.
 
-- **Local testing:** `npm start`
-- **Netlify function testing:** `npm run netlify-dev`
-- **Production:** Deploy to Netlify
-
-## Error Handling
-
-The function includes comprehensive error handling and returns appropriate HTTP status codes:
-
-- `200`: Success
-- `404`: No identities found
-- `500`: Server error (with error details)
-
-All responses include CORS headers for cross-origin requests.

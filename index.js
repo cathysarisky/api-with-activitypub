@@ -95,10 +95,6 @@ async function main() {
             console.log('❌ No identities found in the response');
         }
         
-        // Example of using other endpoints
-        // const posts = await ghostApi.get('posts/');
-        // const pages = await ghostApi.get('pages/');
-        
     } catch (error) {
         console.error('❌ Error:', error.message);
         
