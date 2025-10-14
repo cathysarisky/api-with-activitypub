@@ -28,7 +28,9 @@ because it requires access to your site's admin API key.
 Set environment variables in Netlify dashboard:
    - `GHOST_ADMIN_API_URL`
    - `GHOST_ADMIN_API_KEY`
-Be sure to redeploy after changing these values
+Be sure to redeploy after changing these values.
+
+Also update the endpoint hard-coded in public/get-notes.js for your Netlify server's own url.
 
 ## API Endpoints
 

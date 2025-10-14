@@ -64,8 +64,6 @@ body {
     max-width: 100%;
 }
 
-
-
 /* Notes List */
 .notes-list h2 {
     color: var(--primary-color);
@@ -189,13 +187,6 @@ body {
     border-radius: var(--border-radius);
     border: 1px solid var(--border-color);
     object-fit: cover;
-}
-
-
-
-/* Note Footer */
-.note-footer {
-    /* Footer styling handled by parent .note-engagement */
 }
 
 .note-link {
