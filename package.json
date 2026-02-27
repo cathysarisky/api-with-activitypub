@@ -10,9 +10,8 @@
     "netlify-dev": "netlify dev"
   },
   "dependencies": {
-    "jsonwebtoken": "^9.0.2",
-    "axios": "^1.6.0",
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
     "netlify-cli": "^17.0.0"

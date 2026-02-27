@@ -46,9 +46,9 @@ exports.handler = async (event, context) => {
         
         console.log('📡 Step 2: Getting all your posts...');
         
-        // Get all posts for context
+        // Get all posts for context (paginated, so this may be multiple requests)
         const allPosts = await ghostApi.getActivityPubPosts(bearerToken);
-        const totalPosts = Array.isArray(allPosts) ? allPosts.length : (allPosts.posts ? allPosts.posts.length : 0);
+        const totalPosts = allPosts.length;
         
         console.log('📡 Step 3: Getting your notes with engagement data...');
         

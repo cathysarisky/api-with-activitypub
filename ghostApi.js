@@ -1,4 +1,3 @@
-const axios = require('axios');
 const { generateGhostToken, GHOST_ADMIN_API_URL } = require('./utils');
 
 class GhostApiClient {
@@ -14,16 +13,15 @@ class GhostApiClient {
      * @param {string} endpoint - The API endpoint (relative to base URL)
      * @param {string} method - HTTP method (GET, POST, PUT, DELETE)
      * @param {object} data - Request body data (for POST/PUT requests)
-     * @returns {Promise} - Axios response promise
+     * @returns {Promise} - Response data
      */
     async makeRequest(endpoint, method = 'GET', data = null) {
         try {
             const token = generateGhostToken();
             const url = `${this.baseURL}/ghost/api/admin/${endpoint}`;
-            
-            const config = {
+
+            const options = {
                 method,
-                url,
                 headers: {
                     'Authorization': `Ghost ${token}`,
                     'Content-Type': 'application/json',
@@ -32,11 +30,18 @@ class GhostApiClient {
             };
 
             if (data && (method === 'POST' || method === 'PUT')) {
-                config.data = data;
+                options.body = JSON.stringify(data);
             }
 
-            const response = await axios(config);
-            return response.data;
+            const response = await fetch(url, options);
+            const body = await response.json().catch(() => null);
+
+            if (!response.ok) {
+                const err = new Error(response.statusText || 'Ghost API Error');
+                err.response = { data: body };
+                throw err;
+            }
+            return body;
         } catch (error) {
             console.error('Ghost API Error:', error.response?.data || error.message);
             throw error;
@@ -95,13 +100,12 @@ class GhostApiClient {
      * @param {string} bearerToken - The Bearer token for authentication
      * @param {string} method - HTTP method (default: GET)
      * @param {object} data - Request body data (for POST/PUT requests)
-     * @returns {Promise} - Axios response promise
+     * @returns {Promise} - Response data
      */
     async makeActivityPubRequest(url, bearerToken, method = 'GET', data = null) {
         try {
-            const config = {
+            const options = {
                 method,
-                url,
                 headers: {
                     'Authorization': `Bearer ${bearerToken}`,
                     'Content-Type': 'application/json',
@@ -110,11 +114,18 @@ class GhostApiClient {
             };
 
             if (data && (method === 'POST' || method === 'PUT')) {
-                config.data = data;
+                options.body = JSON.stringify(data);
             }
 
-            const response = await axios(config);
-            return response.data;
+            const response = await fetch(url, options);
+            const body = await response.json().catch(() => null);
+
+            if (!response.ok) {
+                const err = new Error(response.statusText || 'ActivityPub API Error');
+                err.response = { data: body };
+                throw err;
+            }
+            return body;
         } catch (error) {
             console.error('ActivityPub API Error:', error.response?.data || error.message);
             throw error;
@@ -136,14 +147,28 @@ class GhostApiClient {
     }
 
     /**
-     * Get user's posts from ActivityPub endpoint using Bearer token
+     * Get user's posts from ActivityPub endpoint using Bearer token (follows pagination until all posts are fetched)
      * @param {string} bearerToken - The Bearer token for authentication
-     * @returns {Promise} - API response data
+     * @returns {Promise} - Array of all posts (from all pages)
      */
     async getActivityPubPosts(bearerToken) {
-        const activityPubUrl = 'https://www.spectralwebservices.com/.ghost/activitypub/v1/posts/me';
-        
-        return this.makeActivityPubRequest(activityPubUrl, bearerToken);
+        const baseUrl = 'https://www.spectralwebservices.com/.ghost/activitypub/v1/posts/me';
+        const allPosts = [];
+        let nextVal = null;
+
+        do {
+            const url = !nextVal
+                ? baseUrl
+                : nextVal.startsWith('http')
+                    ? nextVal
+                    : `${baseUrl}?next=${encodeURIComponent(nextVal)}`;
+            const page = await this.makeActivityPubRequest(url, bearerToken);
+            const posts = page && page.posts && Array.isArray(page.posts) ? page.posts : [];
+            allPosts.push(...posts);
+            nextVal = (page && page.next) || null;
+        } while (nextVal);
+
+        return allPosts;
     }
 
     /**
@@ -152,18 +177,8 @@ class GhostApiClient {
      * @returns {Promise} - Array of notes (posts with type: 0)
      */
     async getActivityPubNotes(bearerToken) {
-        const posts = await this.getActivityPubPosts(bearerToken);
-        
-        // Filter for notes (type: 0)
-        if (posts && Array.isArray(posts)) {
-            return posts.filter(post => post.type === 0);
-        } else if (posts && posts.posts && Array.isArray(posts.posts)) {
-            // Handle case where posts are nested in a 'posts' property
-            return posts.posts.filter(post => post.type === 0);
-        } else {
-            console.warn('Unexpected posts response format:', posts);
-            return [];
-        }
+        const allPosts = await this.getActivityPubPosts(bearerToken);
+        return allPosts.filter(post => post.type === 0);
     }
 
     /**
@@ -173,17 +188,7 @@ class GhostApiClient {
      * @returns {Promise} - Array of user's notes with extracted data
      */
     async getMyNotes(bearerToken, userHandle = "@cathy@spectralwebservices.com") {
-        const posts = await this.getActivityPubPosts(bearerToken);
-        
-        let allPosts = [];
-        if (posts && Array.isArray(posts)) {
-            allPosts = posts;
-        } else if (posts && posts.posts && Array.isArray(posts.posts)) {
-            allPosts = posts.posts;
-        } else {
-            console.warn('Unexpected posts response format:', posts);
-            return [];
-        }
+        const allPosts = await this.getActivityPubPosts(bearerToken);
 
         // Filter for notes (type: 0) authored by the user
         const myNotes = allPosts.filter(post => 
@@ -214,6 +219,29 @@ class GhostApiClient {
                 handle: note.author.handle,
                 name: note.author.name
             }
+        }));
+    }
+
+    /**
+     * Get user's articles (posts with type: 1) authored by them with likes and reposts
+     * @param {string} bearerToken - The Bearer token for authentication
+     * @param {string} userHandle - The user's handle (e.g., "@cathy@spectralwebservices.com")
+     * @returns {Promise} - Array of { url, likeCount, repostCount }
+     */
+    async getMyPosts(bearerToken, userHandle = "@cathy@spectralwebservices.com") {
+        const allPosts = await this.getActivityPubPosts(bearerToken);
+
+        const myPosts = allPosts.filter(post =>
+            post.type === 1 &&
+            post.authoredByMe === true &&
+            post.author &&
+            post.author.handle === userHandle
+        );
+
+        return myPosts.map(post => ({
+            url: post.url,
+            likeCount: post.likeCount ?? 0,
+            repostCount: post.repostCount ?? 0
         }));
     }
 }

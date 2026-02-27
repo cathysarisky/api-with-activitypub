@@ -5,6 +5,9 @@
 [functions]
   node_bundler = "esbuild"
 
+[functions."social-stats-to-posthog"]
+  schedule = "0 * * * *"
+
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
